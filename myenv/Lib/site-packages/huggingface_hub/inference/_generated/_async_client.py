@@ -51,6 +51,7 @@ from huggingface_hub.inference._generated.types import (
     AudioToAudioOutputElement,
     AutomaticSpeechRecognitionOutput,
     ChatCompletionInputGrammarType,
+    ChatCompletionInputMessage,
     ChatCompletionInputStreamOptions,
     ChatCompletionInputTool,
     ChatCompletionInputToolChoiceClass,
@@ -85,7 +86,7 @@ from huggingface_hub.inference._generated.types import (
     ZeroShotClassificationOutputElement,
     ZeroShotImageClassificationOutputElement,
 )
-from huggingface_hub.inference._providers import PROVIDER_T, get_provider_helper
+from huggingface_hub.inference._providers import PROVIDER_OR_POLICY_T, get_provider_helper
 from huggingface_hub.utils import build_hf_headers, get_session, hf_raise_for_status
 from huggingface_hub.utils._auth import get_token
 from huggingface_hub.utils._deprecation import _deprecate_method
@@ -121,7 +122,7 @@ class AsyncInferenceClient:
             path will be appended to the base URL (see the [TGI Messages API](https://huggingface.co/docs/text-generation-inference/en/messages_api)
             documentation for details). When passing a URL as `model`, the client will not append any suffix path to it.
         provider (`str`, *optional*):
-            Name of the provider to use for inference. Can be `"black-forest-labs"`, `"cerebras"`, `"cohere"`, `"fal-ai"`, `"fireworks-ai"`, `"hf-inference"`, `"hyperbolic"`, `"nebius"`, `"novita"`, `"openai"`, `"replicate"`, "sambanova"` or `"together"`.
+            Name of the provider to use for inference. Can be `"black-forest-labs"`, `"cerebras"`, `"cohere"`, `"fal-ai"`, `"fireworks-ai"`, `"hf-inference"`, `"hyperbolic"`, `"nebius"`, `"novita"`, `"nscale"`, `"openai"`, `"replicate"`, "sambanova"` or `"together"`.
             Defaults to "auto" i.e. the first of the providers available for the model, sorted by the user's order in https://hf.co/settings/inference-providers.
             If model is a URL or `base_url` is passed, then `provider` is not used.
         token (`str`, *optional*):
@@ -154,7 +155,7 @@ class AsyncInferenceClient:
         self,
         model: Optional[str] = None,
         *,
-        provider: Union[Literal["auto"], PROVIDER_T, None] = None,
+        provider: Optional[PROVIDER_OR_POLICY_T] = None,
         token: Optional[str] = None,
         timeout: Optional[float] = None,
         headers: Optional[Dict[str, str]] = None,
@@ -480,7 +481,7 @@ class AsyncInferenceClient:
     @overload
     async def chat_completion(  # type: ignore
         self,
-        messages: List[Dict],
+        messages: List[Union[Dict, ChatCompletionInputMessage]],
         *,
         model: Optional[str] = None,
         stream: Literal[False] = False,
@@ -506,7 +507,7 @@ class AsyncInferenceClient:
     @overload
     async def chat_completion(  # type: ignore
         self,
-        messages: List[Dict],
+        messages: List[Union[Dict, ChatCompletionInputMessage]],
         *,
         model: Optional[str] = None,
         stream: Literal[True] = True,
@@ -532,7 +533,7 @@ class AsyncInferenceClient:
     @overload
     async def chat_completion(
         self,
-        messages: List[Dict],
+        messages: List[Union[Dict, ChatCompletionInputMessage]],
         *,
         model: Optional[str] = None,
         stream: bool = False,
@@ -557,7 +558,7 @@ class AsyncInferenceClient:
 
     async def chat_completion(
         self,
-        messages: List[Dict],
+        messages: List[Union[Dict, ChatCompletionInputMessage]],
         *,
         model: Optional[str] = None,
         stream: bool = False,

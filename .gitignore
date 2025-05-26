@@ -12,7 +12,7 @@ build/
 *.egg-info/
 
 # Virtual environments
-venv/
+myenv/
 env/
 ENV/
 
